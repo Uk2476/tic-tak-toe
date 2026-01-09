@@ -4,14 +4,14 @@ pragma solidity ^0.8.19;
 contract Ledger {
     uint256 accountBalance;
     uint256 transactionCount;
-    address public owner;
+    address owner;
 
     struct Transaction {
         string name;
         uint256 amount;
     }
 
-    Transaction[] public transactions;
+    Transaction[] transactions;
 
     mapping(string => uint256) public balances;
 
