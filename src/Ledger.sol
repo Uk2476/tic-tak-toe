@@ -51,8 +51,8 @@ contract Ledger {
     function getTransactionDetails(
         uint256 index
     ) public view onlyOwner returns (string memory, uint256) {
-        require(index < transactionCount, "Invalid transaction index");
-        Transaction memory txn = transactions[index];
+        require(index - 1 < transactionCount, "Invalid transaction index");
+        Transaction memory txn = transactions[index - 1];
         return (txn.name, txn.amount);
     }
 }
