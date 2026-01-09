@@ -37,6 +37,14 @@ contract LedgerTest is Test {
         assertEq(amount, 300);
     }
 
+    function testGetTransactionAmountByPurpose() public {
+        ledger.Credit("Initial Deposit", 1000);
+        uint256 amount = ledger.getTransactionAmountByPurpose(
+            "Initial Deposit"
+        );
+        assertEq(amount, 1000);
+    }
+
     function testCreditByNonOwner() public {
         vm.prank(nonOwner);
         vm.expectRevert("Not authorized");
@@ -53,6 +61,12 @@ contract LedgerTest is Test {
         vm.prank(nonOwner);
         vm.expectRevert("Not authorized");
         ledger.getBalance();
+    }
+
+    function testGetTransactionDetailsByNonOwner() public {
+        vm.prank(nonOwner);
+        vm.expectRevert("Not authorized");
+        ledger.getTransactionDetails(1);
     }
 
     function testInitialBalance() public {
