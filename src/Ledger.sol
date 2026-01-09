@@ -33,6 +33,7 @@ contract Ledger {
         transactions.push(Transaction(transactionPurpose, debitAmount));
         accountBalance -= debitAmount;
         transactionCount++;
+        balances[transactionPurpose] = debitAmount;
     }
 
     function Credit(
@@ -42,6 +43,7 @@ contract Ledger {
         transactions.push(Transaction(transactionPurpose, creditAmount));
         accountBalance += creditAmount;
         transactionCount++;
+        balances[transactionPurpose] = creditAmount;
     }
 
     function getBalance() public view onlyOwner returns (uint256) {
@@ -54,5 +56,11 @@ contract Ledger {
         require(index - 1 < transactionCount, "Invalid transaction index");
         Transaction memory txn = transactions[index - 1];
         return (txn.name, txn.amount);
+    }
+
+    function getTransactionAmountByPurpose(
+        string memory transactionPurpose
+    ) public view onlyOwner returns (uint256) {
+        return balances[transactionPurpose];
     }
 }
