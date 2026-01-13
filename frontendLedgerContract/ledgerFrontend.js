@@ -1,4 +1,4 @@
-const contractAddress = '0x3195a88E104CFCA22131002816Fa2CF85e75152a.';
+const contractAddress = '0x3195a88E104CFCA22131002816Fa2CF85e75152a';
 
 const contractAbi = [
     {
@@ -150,7 +150,7 @@ async function connectWallet() {
             showMessage('Wallet connected successfully');
             connectButton.textContent = 'Wallet Connected';
         } catch (error) {
-            showMessage('Error ' + error.message);
+            showMessage('Error ' );
         }
     } else {
         showMessage('Please install MetaMask');
@@ -166,7 +166,7 @@ async function getBalance() {
         const balance = await contract.getBalance();
         balanceDisplay.textContent = 'Balance: ' + balance.toString();
     } catch (error) {
-        showMessage('Error ' + error.message);
+        showMessage('Error ' );
     }
 }
 
@@ -190,7 +190,7 @@ async function creditTransaction() {
         creditPurpose.value = '';
         creditAmount.value = '';
     } catch (error) {
-        showMessage('Error ');
+        showMessage('Error ' + error.message);
     }
 }
 
