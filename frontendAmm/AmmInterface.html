@@ -7,7 +7,74 @@
     <link rel="stylesheet" href="AmmInterface.css">
 </head>
 <body>
-    
+    <div id="app">
+        <div id="connect-page" class="page">
+            <div class="card">
+                <h1 class="title">Connect Your Wallet</h1>
+                <button id="connect-btn" class="button">Connect Wallet</button>
+            </div>
+        </div>
+
+        <div id="attendance-page" class="page hidden">
+            <div class="card">
+                <h1 class="title">Attendance Check</h1>
+                <p id="address-display" class="address"></p>
+                <div class="question">
+                    <h2 class="question-text">Did you attend class today?</h2>
+                    <button id="mint-btn" class="button yes-button">Yes</button>
+                </div>
+                <p id="attendance-message" class="message hidden"></p>
+            </div>
+        </div>
+
+        <div id="swap-page" class="page hidden">
+            <div class="card">
+                <h1 class="title">Token Swap</h1>
+                <p id="swap-address-display" class="address"></p>
+                
+                <div class="balances">
+                    <div class="balance-item">
+                        <span>StudyPoint Balance:</span>
+                        <span id="sp-balance" class="balance-value">0 SP</span>
+                    </div>
+                    <div class="balance-item">
+                        <span>CanteenToken Balance:</span>
+                        <span id="ct-balance" class="balance-value">0 CT</span>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3 class="section-title">Approve Tokens</h3>
+                    <input 
+                        type="text" 
+                        id="approve-input" 
+                        placeholder="Amount to approve"
+                        class="input"
+                    />
+                    <button id="approve-btn" class="button">Approve</button>
+                </div>
+
+                <div class="section">
+                    <h3 class="section-title">Swap SP for CT</h3>
+                    <input 
+                        type="text" 
+                        id="swap-input" 
+                        placeholder="Amount of SP to swap"
+                        class="input"
+                    />
+                    <div class="output-box">
+                        <span>You will receive:</span>
+                        <span id="output-amount" class="output-value">0 CT</span>
+                    </div>
+                    <button id="swap-btn" class="button">Swap</button>
+                </div>
+
+                <p id="swap-message" class="message hidden"></p>
+
+                <button id="refresh-btn" class="button refresh-button">Refresh Balances</button>
+            </div>
+        </div>
+    </div>
 
     <script type="module" src="frontendAmm.js"></script>
 </body>
