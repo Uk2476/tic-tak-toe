@@ -16,31 +16,25 @@ contract amm {
     uint256 public liquidityPool ;
     uint256 CtSwapped ;
 
-    StudyPoint public studypoint;
+    StudyPoint public studyPoint;
     CanteenToken public canteenToken;
 
-    mapping(address=> uint256) timesMinted;
+    
 
     constructor () {
         initialToken = 100 ether ;
-        reserveCt = 1500 ether ;
-        reserveSP = 3000 ether ;
-        studypoint = new StudyPoint(reserveSP + 1000 ether);
+        reserveCt = 15000 ether ;
+        reserveSP = 30000 ether ;
+        studyPoint = new StudyPoint(reserveSP + 10000 ether);
         canteenToken = new CanteenToken(reserveCt);
     }
 
     function mint() public {
-        if(timesMinted[msg.sender] >= 1 ){
-            revert amm_onlyRecieveOnetime();
-        }
-        bool firstTransaction = studypoint.transfer(msg.sender , initialToken);
-        if( firstTransaction == true){
-            timesMinted[msg.sender]++;
-        }
+        studyPoint.transfer(msg.sender , initialToken);
     }
  
     function swapSpwithCt(uint256 SpToBeSwappedWithCt) public {
-        if(studypoint.balanceOf(msg.sender) < SpToBeSwappedWithCt){
+        if(studyPoint.balanceOf(msg.sender) < SpToBeSwappedWithCt){
             revert amm_insufficientBalance() ;
         }
         liquidityPool = reserveCt * reserveSP ;
@@ -48,7 +42,8 @@ contract amm {
         if(CtSwapped==0 || CtSwapped > reserveCt){
             revert amm_InsufficientLiquidity();
         }
-        bool transaction1 = studypoint.transferFrom(msg.sender , address (this) , SpToBeSwappedWithCt);
+    //first approve the transaction in contract studypoints 
+        bool transaction1 = studyPoint.transferFrom(msg.sender , address (this) , SpToBeSwappedWithCt);
         if (transaction1 == false){
             revert amm_transactionFAiled();
         }
@@ -68,4 +63,14 @@ contract amm {
         require(Ctout != 0 && Ctout <= reserveCt, "Insufficient liquidity");        
         return Ctout;
     }
+
+    function balanceOfCt() public view returns (uint256) {
+        return canteenToken.balanceOf(msg.sender);
+    }
+
+    function balanceOfSp() public view returns (uint256) {
+        return studyPoint.balanceOf(msg.sender);
+    }
+
+
 }

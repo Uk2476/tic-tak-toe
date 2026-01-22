@@ -29,14 +29,6 @@ contract AmmTest is Test {
         assertEq(balance, 100 ether);
     }
     
-    function testMintOnlyOnce() public {
-        vm.startPrank(msg.sender);
-        Amm.mint();        
-        vm.expectRevert(amm.amm_onlyRecieveOnetime.selector);
-        Amm.mint();
-        vm.stopPrank();
-    }
-    
     function testSwapWithoutApproval() public {
         vm.startPrank(msg.sender);
         Amm.mint();
@@ -120,5 +112,23 @@ contract AmmTest is Test {
     function testInitialTokenAmount() public view {
         assertEq(Amm.initialToken(), 100 ether);
     }
+
+    function testBalanceOfCt() public { vm.startPrank(msg.sender);
+        vm.startPrank();
+        uint256 expectedAmount =  Amm.getOutputAmount(50 ether);
+        Amm.mint();
+        studypoint.approve(address(Amm), 100 ether);       
+        Amm.swapSpwithCt(50 ether);
+        uint256 actualAmount = canteentoken.balanceOfCt(msg.sender);  
+        assert (expectedAmount == actualAmount)     ;
+    }
     
+    function testBalanceOfSp() public { vm.startPrank(msg.sender);
+    vm.startPrank();
+    Amm.mint();
+    studypoint.approve(address(Amm), 100 ether);       
+    Amm.swapSpwithCt(50 ether);
+    uint256 actualAmount = canteentoken.balanceOfSp(msg.sender);  
+    assert (50 ether == actualAmount)     ;
+    }
 }
