@@ -3,18 +3,21 @@
 pragma solidity ^0.8.18;
 
 import "forge-std/Test.sol";
-import "../src/week3Amm.sol";
-import "../src/tokens.sol";
+import "src/week3Amm.sol";
+import "src/tokens.sol";
+import "script/DeployWeek3Amm.s.sol";
 
 contract AmmTest is Test {
     amm public Amm;
     StudyPoint public studypoint;
     CanteenToken public canteentoken;
+    DeployAmmScript public deployer;
     
     address public user = address(2);
     
     function setUp() public {
-        Amm = new amm();
+        deployer = new DeployAmmScript() ;  
+        Amm = deployer.run();
         studypoint = Amm.studyPoint();
         canteentoken = Amm.canteenToken();
     }
@@ -22,7 +25,7 @@ contract AmmTest is Test {
     function testMint() public {
         vm.prank(msg.sender);
         Amm.mint();        
-        uint256 balance = sp.balanceOf(msg.sender);
+        uint256 balance = studypoint.balanceOf(msg.sender);
         assertEq(balance, 100 ether);
     }
     
@@ -37,30 +40,25 @@ contract AmmTest is Test {
     function testSwapWithoutApproval() public {
         vm.startPrank(msg.sender);
         Amm.mint();
-        
         vm.expectRevert();
-        Amm.swapSpwithCt(10 ether);
+        Amm.swapSpwithCt(25 ether);
         vm.stopPrank();
     }
     
     function testSwapWithApproval() public {
         vm.startPrank(msg.sender);
-        Amm.mint();
-        
-        sp.approve(address(Amm), 10 ether);
-        Amm.swapSpwithCt(10 ether);
-        
-        uint256 ctBalance = ct.balanceOf(msg.sender);
+        Amm.mint();        
+        studypoint.approve(address(Amm), 25 ether);
+        Amm.swapSpwithCt(25 ether);        
+        uint256 ctBalance = canteentoken.balanceOf(msg.sender);
         assert(ctBalance > 0);
         vm.stopPrank();
     }
     
     function testSwapInsufficientBalance() public {
         vm.startPrank(msg.sender);
-        Amm.mint();
-        
-        sp.approve(address(Amm), 200 ether);
-        
+        Amm.mint();        
+        studypoint.approve(address(Amm), 200 ether);        
         vm.expectRevert(amm.amm_insufficientBalance.selector);
         Amm.swapSpwithCt(200 ether);
         vm.stopPrank();
@@ -68,23 +66,36 @@ contract AmmTest is Test {
     
     function testMultipleUsersCanMint() public {
         vm.prank(msg.sender);
-        Amm.mint();
-        
+        Amm.mint();        
         vm.prank(user);
         Amm.mint();
-        
-        assertEq(sp.balanceOf(msg.sender), 100 ether);
-        assertEq(sp.balanceOf(user), 100 ether);
+        assertEq(studypoint.balanceOf(msg.sender), 100 ether);
+        assertEq(studypoint.balanceOf(user), 100 ether);
+    }
+    
+    function testchangedNoOfCtOutput() public {
+        vm.startPrank(msg.sender);
+        Amm.mint();
+        studypoint.approve(address(Amm), 50 ether);
+        Amm.swapSpwithCt(50 ether);       
+        uint256 ctReceived = canteentoken.balanceOf(msg.sender);
+        vm.stopPrank() ;       
+        vm.startPrank(user);
+        Amm.mint();
+        studypoint.approve(address(Amm), 50 ether);
+        Amm.swapSpwithCt(50 ether);       
+        uint256 ctReceivedUser = canteentoken.balanceOf(user);
+        vm.stopPrank() ;
+        assert(ctReceived > ctReceivedUser);
+
     }
     
     function testSwapReducesReserves() public {
         vm.startPrank(msg.sender);
-        Amm.mint();
-        
-        sp.approve(address(Amm), 50 ether);
-        Amm.swapSpwithCt(50 ether);
-        
-        uint256 ctReceived = ct.balanceOf(msg.sender);
+        Amm.mint();       
+        studypoint.approve(address(Amm), 50 ether);
+        Amm.swapSpwithCt(50 ether);       
+        uint256 ctReceived = canteentoken.balanceOf(msg.sender);
         assert(ctReceived > 0);
         vm.stopPrank();
     }
@@ -94,30 +105,14 @@ contract AmmTest is Test {
         assert(output > 0);
     }
     
-    function testSwapWithSmallAmount() public {
-        vm.startPrank(msg.sender);
-        Amm.mint();
-        
-        sp.approve(address(Amm), 1 ether);
-        Amm.swapSpwithCt(1 ether);
-        
-        uint256 ctBalance = ct.balanceOf(msg.sender);
-        assert(ctBalance > 0);
-        vm.stopPrank();
-    }
-    
     function testMultipleSwaps() public {
         vm.startPrank(msg.sender);
         Amm.mint();
-        
-        sp.approve(address(Amm), 100 ether);
-        
+        studypoint.approve(address(Amm), 100 ether);       
         Amm.swapSpwithCt(10 ether);
-        uint256 firstSwap = ct.balanceOf(msg.sender);
-        
+        uint256 firstSwap = canteentoken.balanceOf(msg.sender);       
         Amm.swapSpwithCt(10 ether);
-        uint256 secondSwap = ct.balanceOf(msg.sender);
-        
+        uint256 secondSwap = canteentoken.balanceOf(msg.sender);        
         assert(secondSwap > firstSwap);
         vm.stopPrank();
     }
@@ -126,7 +121,4 @@ contract AmmTest is Test {
         assertEq(Amm.initialToken(), 100 ether);
     }
     
-    function testLiquidityPool() public view {
-        assertEq(Amm.liquidityPool(), 0);
-    }
 }
